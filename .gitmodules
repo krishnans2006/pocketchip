@@ -1,0 +1,3 @@
+[submodule "chip-tools"]
+	path = chip-tools
+	url = https://git.sr.ht/~nytpu/CHIP-tools
