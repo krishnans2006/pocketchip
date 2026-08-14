@@ -1,4 +1,4 @@
-# Pocket CHIP
+# C.H.I.P. Tools
 
 This packages [CHIP-tools](https://git.sr.ht/~nytpu/CHIP-tools) with Nix. I highly recommend [this guide](https://nytpu.com/gemlog/2021-04-15) for proper usage.
 
