@@ -40,19 +40,21 @@
             src = ./chip-tools;
 
             dontBuild = true;
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+
+            postPatch = ''
+              patchShebangs .
+            '';
 
             installPhase = ''
               runHook preInstall
 
               mkdir -p "$out/libexec/chip-tools" "$out/bin"
               cp -R . "$out/libexec/chip-tools"
-              chmod -R u+w "$out/libexec/chip-tools"
-
-              patchShebangs "$out/libexec/chip-tools"
 
               for script in "$out/libexec/chip-tools"/*.sh; do
                 name="''${script##*/}"
-                ln -s "$script" "$out/bin/''${name%.sh}"
+                makeWrapper "$script" "$out/bin/''${name%.sh}"
               done
 
               runHook postInstall
