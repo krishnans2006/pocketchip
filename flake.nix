@@ -4,6 +4,9 @@
   # Flake inputs
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+  # Ensure chip-tools is included in the flake source.
+  inputs.self.submodules = true;
+
   # Flake outputs
   outputs =
     { self, ... }@inputs:
@@ -30,19 +33,44 @@
     {
       devShells = forEachSupportedSystem (
         { pkgs, ... }:
+        let
+          chipTools = pkgs.stdenvNoCC.mkDerivation {
+            pname = "chip-tools";
+            version = "unstable";
+            src = ./chip-tools;
+
+            dontBuild = true;
+
+            installPhase = ''
+              runHook preInstall
+
+              mkdir -p "$out/libexec/chip-tools" "$out/bin"
+              cp -R . "$out/libexec/chip-tools"
+              chmod -R u+w "$out/libexec/chip-tools"
+
+              patchShebangs "$out/libexec/chip-tools"
+
+              for script in "$out/libexec/chip-tools"/*.sh; do
+                name="''${script##*/}"
+                ln -s "$script" "$out/bin/''${name%.sh}"
+              done
+
+              runHook postInstall
+            '';
+          };
+        in
         {
           default = pkgs.mkShellNoCC {
-            # packages = with pkgs; [
-            #   sunxi-tools
-            #   ubootTools
-            #   android-tools
-            # ];
-
-            env = {
-              FEL = "sudo ${pkgs.sunxi-tools}/bin/sunxi-fel";
-              FASTBOOT = "sudo ${pkgs.android-tools}/bin/fastboot";
-              SNIB = "false";
-            };
+            packages = with pkgs; [
+              chipTools
+              bash
+              curl
+              wget
+              which
+              sunxi-tools
+              ubootTools
+              android-tools
+            ];
           };
         }
       );
