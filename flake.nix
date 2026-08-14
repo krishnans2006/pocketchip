@@ -53,8 +53,8 @@
               cp -R . "$out/libexec/chip-tools"
 
               for script in "$out/libexec/chip-tools"/*.sh; do
-                name="''${script##*/}"
-                makeWrapper "$script" "$out/bin/''${name%.sh}"
+                name="$(basename "$script" .sh)"
+                makeWrapper "$script" "$out/bin/$name"
               done
 
               runHook postInstall
